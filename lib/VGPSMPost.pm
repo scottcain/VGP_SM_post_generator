@@ -4,6 +4,7 @@ package VGPSMPost;
 use strict;
 use warnings;
 use OpenAI::API::Request::Chat;
+use Data::Dumper;
 
 #  --species: "Genus species"
 #  --authors: list of email address, or a file that contains them
@@ -27,15 +28,17 @@ sub build_markdown {
     #    my $mention_text = $class->make_mention_text($authors, $usegalaxy);
     my $hastag_text  = $class->make_hashtag_text($usegalaxy);
 
+    my $mentions_text= $class->make_mentions_text($authors, $config, $usegalaxy);
+
     my $images_text  = $class->make_images_text($images);
 
     my $body = $class->make_body($species, $length, $usegalaxy, $images);
 
-    my $special_author_list = $special_authors ? 
+    my $special_author_list = $special_authors ?
                                  $class->make_special_author_list($special_authors) :
                                  '';
 
-    $body = "---\n$media_text\n$hastag_text\n---\n$images_text\n$body\n\n$special_author_list";
+    $body = "---\n$media_text\n$hastag_text\n$mentions_text\n---\n$images_text\n$body\n\n$special_author_list";
 
     return $body;
 }
@@ -68,7 +71,7 @@ END
 
     my $body = $resp->{choices}[0]{message}{content};
 
-    
+
 
     return $body;
 }
@@ -149,6 +152,70 @@ sub make_images_text {
     }
 
     return $images_text;
+}
+
+sub make_mentions_text {
+    my $class   = shift;
+    my $authors = shift;
+    my $config  =  shift;
+    my $usegalaxy = shift;
+
+    my @vgpbluesky;
+    my @vgpmastodon;
+    my @vgplinkedin;
+    my @galaxybluesky;
+    my @galaxymastodon;
+    my @galaxylinkedin;
+
+    for my $author (@{$authors}) {
+      #        warn $author;
+      #  warn Dumper($$config{$author}{'bluesky'});
+      #  warn Dumper($config);
+      #  warn Dumper($$config{'scott@scottcain.net'}{'bluesky'});
+      
+        push @vgpbluesky,  "  - ".$$config{$author}{'bluesky'}  if exists $$config{$author}{'bluesky'};
+        push @vgpmastodon, "  - ".$$config{$author}{'mastodon'} if exists $$config{$author}{'mastodon'};
+        push @vgplinkedin, "  - ".$$config{$author}{'linkedin'} if exists $$config{$author}{'linkedin'};
+    }
+
+
+    if ($usegalaxy) {
+        @galaxybluesky = @vgpbluesky;
+        @galaxymastodon = @vgpmastodon;
+        @galaxylinkedin = @vgplinkedin;
+    }
+
+    unshift @vgpbluesky, " bluesky-vgp:";
+    unshift @vgpmastodon, " mastodon-vgp:";
+    unshift @vgplinkedin, " linkedin-vgp:";
+
+    if ($usegalaxy) {
+        unshift @galaxybluesky, " bluesky-galaxyproject:";
+        unshift @galaxymastodon, " mastodon-galaxyproject:";
+        unshift @galaxylinkedin, " linkedin-galaxyproject:";
+    }
+
+    my $bs_string = join("\n", @vgpbluesky);
+    my $masto_string = join("\n", @vgpmastodon);
+    my $linkedin_string = join("\n", @vgplinkedin);
+
+    my $mentions_text = <<END
+mentions:
+$bs_string
+$masto_string
+END
+;
+
+#^^^ suppressing $linkedin_string because I don't think VGP has linked in
+
+    if ($usegalaxy) {
+        my $bs_galaxy = join("\n", @galaxybluesky);
+        my $masto_galaxy = join("\n", @galaxymastodon);
+        my $linkedin_galaxy = join("\n", @galaxylinkedin);
+        $mentions_text .= "$bs_galaxy\n$masto_galaxy\n$linkedin_galaxy";
+    }
+
+    return $mentions_text;
 }
 
 1;
