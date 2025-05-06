@@ -38,7 +38,7 @@ sub build_markdown {
                                  $class->make_special_author_list($special_authors) :
                                  '';
 
-    $body = "---\n$media_text\n$hastag_text\n$mentions_text\n---\n$images_text\n$body\n\n$special_author_list";
+    $body = "---\n$media_text$hastag_text$mentions_text\n---\n$images_text\n$body\n\n$special_author_list";
 
     return $body;
 }
@@ -120,6 +120,7 @@ sub make_hashtag_text {
     my $text = '';
     if ($usegalaxy) {
         $text = <<GALAXY
+hashtags:
  mastodon-galaxyproject:
   - UseGalaxy
   - VertebrateGenomesProject
@@ -162,10 +163,8 @@ sub make_mentions_text {
 
     my @vgpbluesky;
     my @vgpmastodon;
-    my @vgplinkedin;
     my @galaxybluesky;
     my @galaxymastodon;
-    my @galaxylinkedin;
 
     for my $author (@{$authors}) {
       #        warn $author;
@@ -175,29 +174,24 @@ sub make_mentions_text {
       
         push @vgpbluesky,  "  - ".$$config{$author}{'bluesky'}  if exists $$config{$author}{'bluesky'};
         push @vgpmastodon, "  - ".$$config{$author}{'mastodon'} if exists $$config{$author}{'mastodon'};
-        push @vgplinkedin, "  - ".$$config{$author}{'linkedin'} if exists $$config{$author}{'linkedin'};
     }
 
 
     if ($usegalaxy) {
         @galaxybluesky = @vgpbluesky;
         @galaxymastodon = @vgpmastodon;
-        @galaxylinkedin = @vgplinkedin;
     }
 
     unshift @vgpbluesky, " bluesky-vgp:";
     unshift @vgpmastodon, " mastodon-vgp:";
-    unshift @vgplinkedin, " linkedin-vgp:";
 
     if ($usegalaxy) {
         unshift @galaxybluesky, " bluesky-galaxyproject:";
         unshift @galaxymastodon, " mastodon-galaxyproject:";
-        unshift @galaxylinkedin, " linkedin-galaxyproject:";
     }
 
     my $bs_string = join("\n", @vgpbluesky);
     my $masto_string = join("\n", @vgpmastodon);
-    my $linkedin_string = join("\n", @vgplinkedin);
 
     my $mentions_text = <<END
 mentions:
@@ -211,8 +205,7 @@ END
     if ($usegalaxy) {
         my $bs_galaxy = join("\n", @galaxybluesky);
         my $masto_galaxy = join("\n", @galaxymastodon);
-        my $linkedin_galaxy = join("\n", @galaxylinkedin);
-        $mentions_text .= "$bs_galaxy\n$masto_galaxy\n$linkedin_galaxy";
+        $mentions_text .= "$bs_galaxy\n$masto_galaxy";
     }
 
     return $mentions_text;
