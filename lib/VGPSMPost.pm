@@ -25,7 +25,7 @@ sub build_markdown {
     my $config = shift; # path to local config file
 
     my $media_text   = $class->make_media_text($usegalaxy);
-    #    my $mention_text = $class->make_mention_text($authors, $usegalaxy);
+
     my $hastag_text  = $class->make_hashtag_text($usegalaxy);
 
     my $mentions_text= $class->make_mentions_text($authors, $config, $usegalaxy);
@@ -160,6 +160,9 @@ sub make_mentions_text {
     my $authors = shift;
     my $config  =  shift;
     my $usegalaxy = shift;
+
+    return unless $authors;
+    return unless (scalar @{$authors} > 0);
 
     my @vgpbluesky;
     my @vgpmastodon;

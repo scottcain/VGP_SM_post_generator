@@ -18,7 +18,7 @@ use Data::Dumper;
 #END
 
 my $species = 'Callospermophilus lateralis';
-my @author_list = qw(scott@scottcain.net fake@example.com);
+my @author_list ; #= qw(scott@scottcain.net fake@example.com);
 my $length  = '250MB';
 my $usegalaxy = 1;
 my $special_authors = 'me=Annotated;you=Assembled';
