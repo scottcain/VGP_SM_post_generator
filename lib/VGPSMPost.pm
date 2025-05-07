@@ -38,7 +38,7 @@ sub build_markdown {
                                  $class->make_special_author_list($special_authors) :
                                  '';
 
-    $body = "---\n$media_text$hastag_text$mentions_text\n---\n$images_text\n$body\n\n$special_author_list";
+    $body = "---\n$media_text$hastag_text$mentions_text"."---\n$images_text\n$body\n\n$special_author_list";
 
     return $body;
 }
@@ -80,7 +80,9 @@ sub make_special_author_list {
     my $class = shift;
     my $special_authors = shift;
 
-    my $text;
+    return unless $special_authors;
+
+    my $text = "Special thanks to:\n";
 
     my @specials = split /;/, $special_authors;
     for my $sp (@specials) {
@@ -196,19 +198,14 @@ sub make_mentions_text {
     my $bs_string = join("\n", @vgpbluesky);
     my $masto_string = join("\n", @vgpmastodon);
 
-    my $mentions_text = <<END
-mentions:
-$bs_string
-$masto_string
-END
-;
+    my $mentions_text = "mentions:\n$bs_string\n$masto_string\n";
 
 #^^^ suppressing $linkedin_string because I don't think VGP has linked in
 
     if ($usegalaxy) {
         my $bs_galaxy = join("\n", @galaxybluesky);
         my $masto_galaxy = join("\n", @galaxymastodon);
-        $mentions_text .= "$bs_galaxy\n$masto_galaxy";
+        $mentions_text .= "$bs_galaxy\n$masto_galaxy\n";
     }
 
     return $mentions_text;
