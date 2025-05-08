@@ -14,7 +14,7 @@ A LLM-powered tool for generating social media posts announcing genomes assemble
 
 ## Options
 
---usegalaxy
+--[no]usegalaxy
 
 Flag to add a comment that the genome was assembled and annotated at UseGalaxy (default). Adding the 'no' explicitly turns this off.
 
@@ -42,11 +42,20 @@ A list of semicolon delimited "tag=value" pairs, where the tag is the author's n
 
 A flag to create a git branch, commit the newly created markdown file and create a pull request. Note that to work, the script must be invoked in a checked out GitHub repo (optional).
 
+--config <filename>
+
+Default value: `handles.conf`. Points at an ini formated file containing Mastodon and BlueSky user handles corresponding to the author emails provided in the `--author_list` option, where the entries look like:
+```
+[email@example.com]
+mastodon=example@example.social
+bluesky=example.bluesky.com
+```
+
 ## Prerequisites
 
 * Perl modules:
-- local::lib - While strictly not necessary, using `local::lib` makes perl module management much easier. See https://metacpan.org/pod/local::lib#The-bootstrapping-technique for installing `local::lib` without `sudo`.
-- Config::INI - If you have access to a package manager, install cpanm ("cpan minus") will make installing perl modules easier. After install `local::lib`, just running `cpanm Config::INI` will install the module.
+  - local::lib - While strictly not necessary, using `local::lib` makes perl module management much easier. See https://metacpan.org/pod/local::lib#The-bootstrapping-technique for installing `local::lib` without `sudo`.
+  - Config::INI - If you have access to a package manager, install cpanm ("cpan minus") will make installing perl modules easier. After install `local::lib`, just running `cpanm Config::INI` will install the module.
 
 * An OpenAI/ChatGPT API key - this is what I followed to get the API key: https://dev.to/onlinemsr/how-to-get-chatgpt-api-key-a-step-by-step-guide-507k  After getting the key, a environment variable needs to be set with the contents of the key: `export OPEN_API_KEY=thekey`.  This command can be placed in a .bashrc or .zshrc file to make it part of the environment on login.
 
@@ -72,5 +81,4 @@ $SPECIES by the Vertebrate Genome Lab. Mention its common
 name $galaxy_part. Mention at least one interesting fact
 about the species.
 ```
-
 2. The formating of post breaks could be improved, making them look good in BlueSky threads.  Doing this generically seems kind of hard and not really worth the effort (in my opinion). For "special" posts, more human effort can be expended to make the posts better, whereas for not-special posts, the bot output should be fine.
